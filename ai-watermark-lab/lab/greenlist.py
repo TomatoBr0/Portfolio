@@ -74,6 +74,8 @@ class GreenListProcessor:
         self.tokenizer = tokenizer
         self.on_token = on_token
         self.first_step = []
+        self.entropy_before = None
+        self.entropy_after = None
         self.steps = 0
 
     def __call__(self, input_ids, scores):
@@ -83,6 +85,8 @@ class GreenListProcessor:
         if self.steps == 0:
             before = torch.softmax(scores[0].float() / self.temperature, dim=-1)
             after = torch.softmax(boosted[0].float() / self.temperature, dim=-1)
+            self.entropy_before = float(-(before * before.clamp_min(1e-30).log2()).sum())
+            self.entropy_after = float(-(after * after.clamp_min(1e-30).log2()).sum())
             candidates = set(before.topk(8).indices.tolist() + after.topk(8).indices.tolist())
             green_set = set(green_ids)
             self.first_step = [

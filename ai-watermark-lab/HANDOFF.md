@@ -1,37 +1,60 @@
 # Continue in VS Code
 
-## Goal and source
+## Goal
 
-This is a high-school portfolio research lab on AI text watermarking, based on the author's brainstorming notes from November 9, 2026.
+Build a high-school portfolio research tool for AI text watermarks. Original roadmap:
+white-box, controlled CLI access, then output-only experiments; detection, rewriting
+robustness, and investigating whether key recovery is feasible. Do not promise key recovery.
 
-The brainstorm proposes white-box local model experiments, a controlled CLI chat, and output-only black-box tests. Priorities: detection, robustness to rewriting, and investigating secret-key recovery. It suggests SynthID, logits comparisons, n-gram statistics, synonym replacement, and repeated single-word completions. These are proposed experiments, not established results.
+## User preferences / latest direction
 
-Additional question: could predictable pangram completions reveal a watermark, perhaps through differences in thinking tokens? Keep this as a hypothesis; local controlled output experiments are needed, and private thinking tokens are unavailable here.
+- Explain steps before running commands; let the user choose meaningful configuration.
+- Fixed-screen TUI: short explanation on the LEFT, actual data on the RIGHT; Back/Next
+  switches views. No long scrolling dashboard. The user is done with the tutorial;
+  launch directly into the lab. Longer explanations/answers and sample tables paginate.
+- Keep a flat ASCII/Catppuccin terminal appearance inspired by terminal-web-tui.
+- Ground descriptions in current graph values. Use descriptive measurement names:
+  pattern score, green hits, scored tokens, green fraction. Do not label z as likelihood.
+- User supplied https://www.youtube.com/watch?v=Cmi-1QSaptA plus a summary about
+  key/previous-token hashing, favored tokens, bias and the low-entropy trade-off.
+  Use that framing; don't claim to have watched it. First-token entropy is now recorded.
 
-## Environment
+## Current implementation
 
-- Windows, Python 3.11; dedicated `.venv` in this folder.
-- NVIDIA GeForce RTX 3060 Ti with 8 GB VRAM.
-- VS Code interpreter and extension recommendations configured.
-- Setup verified on November 9, 2026: PyTorch 2.14.1+cu126, Transformers 4.57.6, CUDA available on the RTX 3060 Ti. Offline SmolLM2 generation and `pip check` passed. Package versions are recorded in requirements-lock.txt. Local logs/status are ignored by Git.
-- Model weights and NLTK datasets are downloaded under models/ and data/. Textual, plotext, statistics tools, Jupyter, pytest, and Ruff are installed. VS Code Python, Jupyter, and Ruff extensions are installed.
-- First TUI implemented: launch `python -m lab.app`. Three tutorial pages lead to editable paired OFF/ON experiments and measured evidence charts. The tutorial completion preference is local in data/preferences.json.
-- Educational greenlist-v1 lives in lab/greenlist.py, paired generation/export in lab/experiment.py, Textual UI in lab/app.py. Each generated sample has token IDs, scores, timing and settings in an ignored outputs/run-*.json file.
-- GPU runner and full TUI worker smoke checks passed. Unit tests verify RNG isolation, key-dependent lists, repeated-context exclusion and the score formula. Short setup runs are not validation of detection accuracy.
+Launch `python -m lab.app` from this folder's activated .venv. Seven fixed views:
+setup, tuning, run, summary, score graph, probability chart, answer excerpts.
+Experiments: paired OFF/ON, bulk baseline with disjoint calibration/evaluation seeds,
+and strength sweep (0, .75, configured bias, 2.5). Bulk defaults 40 calibration OFF
+and 20 fresh test pairs. Target false alarms defaults .05. Calibration alone chooses
+an upper order-statistic threshold; held-out rates include approximate Wilson intervals.
+These are model/prompt/settings-specific estimates, not universal detector accuracy.
+Stop + save retains completed samples and marks the run cancelled. Load latest opens
+the newest local JSON. Model/tokenizer stay cached across experiments.
 
-## User's latest product direction
+`lab/app.py` UI; `lab/experiment.py` runner/settings; `lab/suites.py` sample plans and
+stats; `lab/greenlist.py` educational scheme/detector. `lab/teaching.py` earlier detailed
+templates remain available but aren't the default UI. Outputs are ignored JSON files.
+Every row stores prompt, phase, seed, strength, token IDs, scores, timing, first-step
+entropy. Probability-chart source sample/bias is recorded. Repeated contexts are not
+counted again by the detector. The scheme is separate from SynthID.
 
-Build a visually striking TUI research tool with graphs, charts, and mathematical explanations. Display actual measured experiment data. Never present fabricated chart values as results. Distinguish observed results, analytical expectations, and any explicitly labeled demonstrations. Use Textual with plotext/textual-plotext and Rich. Attach model, seed, sampling configuration, sample counts, and watermark settings to experiment records. Repository: https://github.com/TomatoBr0/Portfolio, project folder: ai-watermark-lab.
+## Environment / verification
 
-Latest design direction: ASCII-style terminal UI inspired by terminal-web-tui, with Catppuccin colors, flat controls, thin ASCII borders, and a sidebar that hides below 100 columns. Keep graphs. Explanations should be reusable templates filled with actual values from the displayed graphs, not just generic descriptions. lab/teaching.py provides setting definitions and live explanations of token counts, expected hits, z/p, curve endpoints/peaks and numbered probability bars. Do not imply a weak experiment succeeded. Tests cover narrative substitution and inconclusive comparisons.
+Windows, Python 3.11, RTX 3060 Ti (8 GB), CUDA PyTorch 2.14.1+cu126,
+Transformers 4.57.6. Local SmolLM2-360M-Instruct weights (~724 MB) and NLTK resources
+are downloaded. Textual, plotext, data tools, pytest and Ruff installed; VS Code
+Python, Jupyter and Ruff extensions installed.
 
-Explain each step before running commands. Let the user choose meaningful configuration settings. The user specifically chose ai-watermark-lab as the folder name. Model and TUI settings should be discussed before implementation.
+Tests cover RNG isolation, score formula, repeated-context exclusion, narrative
+substitution, 80x24/120x45 paging, calibration/test separation, threshold leakage,
+Wilson uncertainty and sweep plans. Real GPU baseline (20 calibration + 5 test pairs)
+and sweep smoke runs passed, as did their graphs/export UI. These short runs verify
+software behavior, not scientific detection performance. Run pytest and Ruff after edits.
 
-## Implementation next steps
+## Repository
 
-1. Have the user launch `python -m lab.app`, read Learn and choose first settings. Explain each change before running it.
-2. Collect held-out controls and enough samples to measure false-positive rates before setting detection thresholds.
-3. Extend to SynthID and additional backend adapters later; do not conflate these methods.
-4. Add run-history loading and comparison as future work. Current UI shows the current session's latest run; earlier JSON files are preserved.
-
-The user requested setup and downloads before reopening in VS Code. Do not assume they requested a website or that key recovery is feasible.
+https://github.com/TomatoBr0/Portfolio ; project is ai-watermark-lab/.
+Use connected GitHub tools for writes: local git push opens an authentication selector.
+Public git fetch works with `git -c credential.helper= -c core.askPass= fetch origin`.
+Models, environment, datasets, logs and outputs are ignored. Old portfolio-project
+folder is obsolete; the user will delete it manually after a policy-blocked deletion.
