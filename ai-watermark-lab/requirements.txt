@@ -1,0 +1,17 @@
+transformers>=4.46,<5
+accelerate
+safetensors
+huggingface-hub
+numpy
+scipy
+pandas
+matplotlib
+scikit-learn
+nltk
+jupyterlab
+ipykernel
+pytest
+ruff
+textual
+plotext
+textual-plotext

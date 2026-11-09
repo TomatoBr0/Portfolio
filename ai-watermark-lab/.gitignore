@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.env
+models/
+data/
+outputs/
+references/
+setup.log
+setup-error.log
+SETUP_STATUS.md
