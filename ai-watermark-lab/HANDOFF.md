@@ -13,10 +13,9 @@ Additional question: could predictable pangram completions reveal a watermark, p
 - Windows, Python 3.11; dedicated `.venv` in this folder.
 - NVIDIA GeForce RTX 3060 Ti with 8 GB VRAM.
 - VS Code interpreter and extension recommendations configured.
-- Dependencies and a small ungated model are being installed in the setup session; consult `SETUP_STATUS.md` for verified completion.
+- Setup verified on November 9, 2026: PyTorch 2.14.1+cu126, Transformers 4.57.6, CUDA available on the RTX 3060 Ti. Offline SmolLM2 generation and `pip check` passed. Package versions are recorded in requirements-lock.txt. Local logs/status are ignored by Git.
+- Model weights and NLTK datasets are downloaded under models/ and data/. Textual, plotext, statistics tools, Jupyter, pytest, and Ruff are installed. VS Code Python, Jupyter, and Ruff extensions are installed.
 - No experiment code or research results yet.
-
-## Next work
 
 ## User's latest product direction
 
