@@ -2,6 +2,37 @@
 
 A portfolio research project investigating statistical text watermarks with reproducible local experiments.
 
+## Launch the terminal lab
+
+From the activated environment in this folder:
+
+```powershell
+python -m lab.app
+```
+
+Start with **Learn** for a three-part walkthrough, then choose your prompt, key,
+watermark bias, green fraction, temperature, token limit, sampling seed, and pair count
+in **Experiment**. Hover over settings for explanations. Completing the tutorial
+remembers your choice locally; F1 reopens it anytime. Ctrl+Q exits.
+
+The **Evidence** tab shows measured cumulative detection scores, same-prefix
+next-token probabilities, each generated sample, and green-token highlighting.
+Use the sample selector to inspect another pair. Dimmed tokens have repeated
+contexts and are excluded from detection scoring. Every run saves JSON under
+`outputs/`, including settings, token IDs, model provenance, scores, and timing.
+Run records include the experiment key for reproducibility; these are lab keys.
+
+The first method is an educational SHA-256-seeded green-list baseline using the
+previous token as context. It is separate from SynthID. The backend, method, and
+interface live in separate modules so more methods and models can be added.
+Currently, detection requires this scheme and the matching key; it is not a
+universal AI-text detector. Scores use an approximate, uncalibrated null model.
+The p-value is not a probability of AI authorship. Repeating context and reusing
+paired seeds limit independence; a few demonstration pairs do not establish a
+false-positive rate or reliable detection threshold.
+
+Checks: `python -m pytest` and `python -m ruff check lab tests`.
+
 ## Workspace
 
 Open this folder in VS Code and select `.venv\Scripts\python.exe` as the Python interpreter.

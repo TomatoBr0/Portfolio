@@ -15,7 +15,9 @@ Additional question: could predictable pangram completions reveal a watermark, p
 - VS Code interpreter and extension recommendations configured.
 - Setup verified on November 9, 2026: PyTorch 2.14.1+cu126, Transformers 4.57.6, CUDA available on the RTX 3060 Ti. Offline SmolLM2 generation and `pip check` passed. Package versions are recorded in requirements-lock.txt. Local logs/status are ignored by Git.
 - Model weights and NLTK datasets are downloaded under models/ and data/. Textual, plotext, statistics tools, Jupyter, pytest, and Ruff are installed. VS Code Python, Jupyter, and Ruff extensions are installed.
-- No experiment code or research results yet.
+- First TUI implemented: launch `python -m lab.app`. Three tutorial pages lead to editable paired OFF/ON experiments and measured evidence charts. The tutorial completion preference is local in data/preferences.json.
+- Educational greenlist-v1 lives in lab/greenlist.py, paired generation/export in lab/experiment.py, Textual UI in lab/app.py. Each generated sample has token IDs, scores, timing and settings in an ignored outputs/run-*.json file.
+- GPU runner and full TUI worker smoke checks passed. Unit tests verify RNG isolation, key-dependent lists, repeated-context exclusion and the score formula. Short setup runs are not validation of detection accuracy.
 
 ## User's latest product direction
 
@@ -25,9 +27,9 @@ Explain each step before running commands. Let the user choose meaningful config
 
 ## Implementation next steps
 
-1. Run `scripts/check_setup.py` and inspect `SETUP_STATUS.md`.
-2. Define a first measurable experiment: fixed prompts, watermark on/off, fixed sampling settings, held-out controls, false-positive measurement.
-3. Build a small green-list baseline separately from SynthID. Use the Transformers SynthID implementation for its own experiment.
-4. Save configurations, seeds, model revision, outputs, and results. Avoid calling p-values confidence percentages.
+1. Have the user launch `python -m lab.app`, read Learn and choose first settings. Explain each change before running it.
+2. Collect held-out controls and enough samples to measure false-positive rates before setting detection thresholds.
+3. Extend to SynthID and additional backend adapters later; do not conflate these methods.
+4. Add run-history loading and comparison as future work. Current UI shows the current session's latest run; earlier JSON files are preserved.
 
 The user requested setup and downloads before reopening in VS Code. Do not assume they requested a website or that key recovery is feasible.
