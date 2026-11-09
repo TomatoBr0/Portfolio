@@ -68,10 +68,12 @@ The matching-key detector rebuilds each green list and counts green-token hits.
 It scores only the first occurrence of each previous-token context, so repetition
 doesn't keep adding the same evidence.
 
-**z = (G - gamma * N) / sqrt(N * gamma * (1 - gamma))**
+**Pattern score = (green hits - expected hits) / expected fluctuation**
 
-G = green hits; N = scored tokens; gamma = actual green fraction.
-A larger positive z means more green hits than this simple null expects.
+Expected hits = green fraction * scored tokens. Expected fluctuation is the
+baseline's standard deviation: sqrt(scored tokens * green fraction * (1 - green fraction)).
+The pattern score is conventionally called a **z-score**. Higher positive scores
+mean more green hits than this simple chance baseline expects, not a likelihood percentage.
 
 The displayed one-sided **p-value is an approximation**, not the probability the
 text is AI-written or watermarked. Short samples are noisy. We need many held-out
@@ -219,7 +221,7 @@ class WatermarkLab(App):
                         yield DataTable(id="measurements")
                         yield Markdown(TRACE_HELP, id="trace-guide")
                         yield PlotextPlot(id="z-chart")
-                        yield Markdown("### The math\nz = (G - gamma*N) / sqrt(N*gamma*(1-gamma)). Only unique previous-token contexts are scored. The one-sided normal-tail p-value is approximate and uncalibrated; it is not a watermark probability.")
+                        yield Markdown("### The math, with names\n**Pattern score = (green hits - expected hits) / expected fluctuation.**\n\nExpected hits = scored tokens * green fraction. Expected fluctuation = sqrt(scored tokens * green fraction * (1 - green fraction)). This score is the standard **z-score**. It tells you distance from the baseline, not likelihood. The chance-tail value is an approximate **p-value**, not a watermark probability.")
                         yield Markdown(PROBABILITY_HELP, id="probability-guide")
                         yield PlotextPlot(id="prob-chart")
                         yield DataTable(id="probabilities")
@@ -233,7 +235,7 @@ class WatermarkLab(App):
         self.theme = "catppuccin-mocha"
         self.query_one("#spinner").display = False
         self.query_one("#measurements", DataTable).add_columns(
-            "Pair", "Watermark", "Tokens", "Scored N", "Green G", "z", "Approx p", "tok/s",
+            "Pair", "Watermark", "Tokens", "Scored tokens", "Green hits", "Pattern score", "Chance tail", "Tokens/sec",
         )
         self.query_one("#probabilities", DataTable).add_columns("#", "Token", "Green?", "OFF probability", "ON probability")
         for chart_id, title in [("z-chart", "Detection trace / waiting for measured data"),
@@ -417,7 +419,7 @@ class WatermarkLab(App):
                           color="green" if sample["marked"] else "cyan")
         plot.title(f"Pair {row['pair']} / cumulative detection evidence")
         plot.xlabel("Generated token position")
-        plot.ylabel("z-score (approximate null)")
+        plot.ylabel("Pattern score (z)")
         widget.refresh()
 
 

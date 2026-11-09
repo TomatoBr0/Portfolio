@@ -19,7 +19,7 @@ def test_explanations_use_selected_counts_and_do_not_promise_success():
     assert "does not show a higher ON score" in text
     trace = explain_trace(result, on)
     assert "**50**" in trace
-    assert "**z = -1.83**" in trace
+    assert "**pattern score (z) = -1.83**" in trace
     assert "**1.10 at position 3**" in trace
 
 

@@ -29,18 +29,22 @@ Each row is a real generated answer. **OFF/ON is the known setting we used**,
 not a detector prediction. A **pair** is one OFF answer and one ON answer.
 
 **Tokens** is the answer length including a final stop token, if emitted.
-**Scored N** counts text tokens used by the detector; repeated previous-token
-contexts and the final stop token are excluded. **Green G** counts favored tokens
+**Scored tokens** counts text tokens used by the detector; repeated previous-token
+contexts and the final stop token are excluded. **Green hits** counts favored tokens
 among those scored. An ordinary answer can contain green tokens by chance.
 
-**z** measures excess green hits relative to a simple chance baseline. **Approx p**
-is a one-sided normal-tail calculation from z. **tok/s** is generation speed,
+**Pattern score (z)** measures excess green hits relative to a simple chance baseline.
+For example, a score of 2 means two estimated standard deviations above the baseline;
+it does not mean 2% or twice as likely. **Chance tail (approximate p-value)** is the
+one-sided normal-tail calculation from that score: a smaller value means a more
+unusual result under the simplified chance model. **Tokens/sec** is generation speed,
 not detection accuracy. This small run does not establish a false-positive rate.
 """
 
 TRACE_HELP = """### 2 / Did the pattern build up as the answer grew?
 
-Read left to right: **x = generated token position**, **y = cumulative z-score**.
+Read left to right: **horizontal axis = generated token position**,
+**vertical axis = cumulative pattern score (z)**.
 At each position we rescore all eligible tokens seen so far, rather than scoring
 only that single token. Cyan is watermark OFF; green is watermark ON.
 
@@ -57,7 +61,7 @@ PROBABILITY_HELP = """### 3 / How did the watermark change the next choice?
 
 This is a microscope on **one step**, immediately after the prompt. We take the
 same model scores, apply the selected temperature, and compare probabilities
-with and without the bias. It is a different view from the whole-answer z chart.
+with and without the bias. It is a different view from the whole-answer pattern-score chart.
 
 Each numbered group is one candidate token; the table lists its exact text.
 Cyan = its probability with watermark OFF. Green = its probability with ON.
@@ -104,10 +108,11 @@ def explain_sample(result: dict, row: dict) -> str:
         f"That is **{abs(difference):.2f} {direction}** than expected.\n\n"
         f"The baseline's estimated standard deviation (its typical scale of "
         f"random fluctuation) is {deviation:.2f} hits. "
-        f"So z = ({hits} - {expected:.2f}) / {deviation:.2f} = **{row['z']:.2f}**. "
+        f"So **pattern score (z)** = (green hits - expected hits) / expected fluctuation "
+        f"= ({hits} - {expected:.2f}) / {deviation:.2f} = **{row['z']:.2f}**. "
         "It measures distance from the baseline, not a percentage.\n\n"
-        f"**Approx p = {row['approx_p']:.3g}.** Under the simplified normal null, "
-        "this is the approximate one-sided tail area at this z or higher. "
+        f"**Chance tail (approximate p-value) = {row['approx_p']:.3g}.** Under the simplified chance model, "
+        "this is the approximate one-sided tail area at this pattern score or higher. "
         "It is not the probability this answer is watermarked. The null has not "
         "been empirically calibrated, especially for short samples.\n\n"
     )
@@ -117,7 +122,7 @@ def explain_sample(result: dict, row: dict) -> str:
     if off and on and off["z"] is not None and on["z"] is not None:
         comparison = "higher" if on["z"] > off["z"] else "lower" if on["z"] < off["z"] else "equal"
         text += (
-            f"**Pair comparison:** OFF z = {off['z']:.2f}; ON z = {on['z']:.2f}. "
+            f"**Pair comparison:** OFF pattern score = {off['z']:.2f}; ON pattern score = {on['z']:.2f}. "
             f"The ON score is {comparison}. "
             + ("That is the direction we hope to see from the watermark boost. "
                if comparison == "higher" else "This pair does not show a higher ON score. That is a result worth recording. ")
@@ -140,7 +145,7 @@ def explain_trace(result: dict, row: dict) -> str:
         endpoint = trace[-1]
         lines.append(
             f"The **{label} line** ends at token position **{endpoint['position']}**, "
-            f"at **z = {endpoint['z']:.2f}**. Its highest point is "
+            f"at **pattern score (z) = {endpoint['z']:.2f}**. Its highest point is "
             f"**{peak['z']:.2f} at position {peak['position']}**. "
             f"The final score uses {sample['green_hits']} green hits from "
             f"{sample['scored_tokens']} scored tokens."
