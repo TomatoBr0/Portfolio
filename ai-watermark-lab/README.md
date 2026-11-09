@@ -17,6 +17,11 @@ remembers your choice locally; F1 reopens it anytime. Ctrl+Q exits.
 
 The **Evidence** tab shows measured cumulative detection scores, same-prefix
 next-token probabilities, each generated sample, and green-token highlighting.
+Reading guides fill in the current run's actual counts, expected hits, z-score,
+line endpoints and peaks, and numbered bar probabilities. The descriptions follow
+the selected pair; the first-token probability chart remains the shared-prefix
+comparison from pair 1. The interface uses a flat Catppuccin terminal palette and
+ASCII borders; its sidebar hides in terminals narrower than 100 columns.
 Use the sample selector to inspect another pair. Dimmed tokens have repeated
 contexts and are excluded from detection scoring. Every run saves JSON under
 `outputs/`, including settings, token IDs, model provenance, scores, and timing.

@@ -23,6 +23,8 @@ Additional question: could predictable pangram completions reveal a watermark, p
 
 Build a visually striking TUI research tool with graphs, charts, and mathematical explanations. Display actual measured experiment data. Never present fabricated chart values as results. Distinguish observed results, analytical expectations, and any explicitly labeled demonstrations. Use Textual with plotext/textual-plotext and Rich. Attach model, seed, sampling configuration, sample counts, and watermark settings to experiment records. Repository: https://github.com/TomatoBr0/Portfolio, project folder: ai-watermark-lab.
 
+Latest design direction: ASCII-style terminal UI inspired by terminal-web-tui, with Catppuccin colors, flat controls, thin ASCII borders, and a sidebar that hides below 100 columns. Keep graphs. Explanations should be reusable templates filled with actual values from the displayed graphs, not just generic descriptions. lab/teaching.py provides setting definitions and live explanations of token counts, expected hits, z/p, curve endpoints/peaks and numbered probability bars. Do not imply a weak experiment succeeded. Tests cover narrative substitution and inconclusive comparisons.
+
 Explain each step before running commands. Let the user choose meaningful configuration settings. The user specifically chose ai-watermark-lab as the folder name. Model and TUI settings should be discussed before implementation.
 
 ## Implementation next steps

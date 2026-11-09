@@ -5,7 +5,8 @@ from textual.widgets import TabbedContent
 from lab.app import WatermarkLab
 
 
-def test_tutorial_can_switch_to_lab_without_focus_returning_to_old_tab():
+def test_tutorial_can_switch_to_lab_without_focus_returning_to_old_tab(monkeypatch, tmp_path):
+    monkeypatch.setattr("lab.app.ROOT", tmp_path)
     async def exercise():
         app = WatermarkLab()
         async with app.run_test(size=(120, 45)) as pilot:
